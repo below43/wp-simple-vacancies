@@ -7,8 +7,8 @@
 	<?php
 	while ( have_posts() ) : the_post();
 
-		if (get_post_type() == 'noticeboard') {
-			echo do_shortcode('[display_noticeboard]');
+		if (get_post_type() == 'vacancy') {
+			echo do_shortcode('[display_vacancy]');
 		} else {
 			get_template_part( 'template-parts/content', get_post_type() );
 		}

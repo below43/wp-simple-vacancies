@@ -1,5 +1,5 @@
 # wp-simple-noticeboard
-A simple, free, noticeboard plugin for Wordpress
+A simple, free, vacancy plugin for Wordpress
 
 ## Installation
 
@@ -10,14 +10,28 @@ A simple, free, noticeboard plugin for Wordpress
 ## Usage
 
 ### Slug
-Make sure the "notices" slug is free for this plugin to use.
+Make sure the "vacancies" slug is free for this plugin to use.
 
 ### Resource posts in your theme
 Copy the theme samples from this project to your theme folder (remove the "sample-" prefix).
 
-After creating this file, WordPress should use it to display your 'notices' custom post type. If you're still having issues, make sure to flush your permalinks by going to "Settings" -> "Permalinks" and clicking "Save Changes".
+After creating this file, WordPress should use it to display your 'vacancies' custom post type. If you're still having issues, make sure to flush your permalinks by going to "Settings" -> "Permalinks" and clicking "Save Changes".
 
 Note that category.php is generic across an entire category, so if you have other custom post types, you'll need to edit the if statement.
+
+### Shortcode
+
+You can use the `[display_vacancies_list]` shortcode to display a specific vacancy item. The shortcode accepts the following optional attributes:
+
+- `category`: The Category to filter on
+- `job_description_label`: The label for the job description link. Defaults to 'View Job Description'.
+- `employer_profile_label`: The label for the employer profile link. Defaults to 'View Employer Profile'.
+
+Example usage:
+
+```markdown
+[display_vacancies_list category="vacancies"]
+```
 
 ## Changelog
 
