@@ -6,7 +6,6 @@
 
 		// Check if the post is being displayed on a singular page
 		if (is_singular()) {
-
 			$page_name = "";
 			//if the page referrer was local to this site, display a back link
 			if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], get_site_url()) !== false) {
@@ -18,12 +17,11 @@
 				}
 			}
 			if (!$page_name) {
-				$page_name = "Resources";
-				$page_href = get_site_url() . "/resources";
+				$page_name = "Vancancies";
+				$page_href = get_site_url() . "/vacancies";
 			}
 			echo "<p><small><a href=\"$page_href\">Back to $page_name</a></small></p>";
-
-			echo do_shortcode('[display_vacancy]');
+			echo do_shortcode('[display_vacancy_item]');
 		} else {
 			echo do_shortcode('[display_vacancy_list]');
 		}

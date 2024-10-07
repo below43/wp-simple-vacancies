@@ -34,7 +34,7 @@ function create_vacancy_post_type()
 		'show_in_nav_menus' => true,
 		'can_export' => true,
 		'has_archive' => true,
-		'exclude_from_search' => false,
+		'exclude_from_search' => true,
 		'publicly_queryable' => true,
 		'capability_type' => 'post',
 	);
@@ -104,7 +104,7 @@ function display_vacancy_meta_box($vacancy)
 			<td><input type="date" name="vacancy_date_to" id="vacancy_date_to" value="<?php echo $date_to; ?>" /></td>
 		</tr>
 	</table>
-	<?php
+<?php
 }
 
 function save_vacancy_meta_fields($post_id)
@@ -145,37 +145,39 @@ add_action('save_post', 'save_vacancy_meta_fields');
 
 add_action('add_meta_boxes', 'add_vacancy_attachments_meta_box');
 
-function add_vacancy_attachments_meta_box() {
-    add_meta_box('vacancy_attachments_meta_box', 'Attachments', 'display_vacancy_attachments_meta_box', 'vacancy', 'normal', 'high');
+function add_vacancy_attachments_meta_box()
+{
+	add_meta_box('vacancy_attachments_meta_box', 'Attachments', 'display_vacancy_attachments_meta_box', 'vacancy', 'normal', 'high');
 }
 
-function display_vacancy_attachments_meta_box($vacancy) {
-    $job_description_url = get_post_meta($vacancy->ID, 'job_description_url', true);
-    $employer_profile_url = get_post_meta($vacancy->ID, 'employer_profile_url', true);
-    ?>
-    <table>
-        <tr>
-            <td colspan="2"><i>Files can be locally uploaded media, or a link to another web page or file</i><br /><br /></td>
-        </tr>
-        <tr>
-            <td style="width: 100%">Job description URL (optional)</td>
-            <td>
+function display_vacancy_attachments_meta_box($vacancy)
+{
+	$job_description_url = get_post_meta($vacancy->ID, 'job_description_url', true);
+	$employer_profile_url = get_post_meta($vacancy->ID, 'employer_profile_url', true);
+?>
+	<table>
+		<tr>
+			<td colspan="2"><i>Files can be locally uploaded media, or a link to another web page or file</i><br /><br /></td>
+		</tr>
+		<tr>
+			<td style="width: 100%">Job description URL (optional)</td>
+			<td>
 				<br />
 				<input type="text" size="80" name="job_description_url" id="job_description_url" value="<?php echo $job_description_url; ?>" />
 				<br /><br />
 				<button type="button" name="job_description_file" id="job_description_file">Select / Upload Media</button>
 			</td>
-        </tr>
-        <tr>
-            <td style="width: 100%">Employer Profile URL (optional)<br /><br /></td>
-            <td>
+		</tr>
+		<tr>
+			<td style="width: 100%">Employer Profile URL (optional)<br /><br /></td>
+			<td>
 				<br />
 				<input type="text" size="80" name="employer_profile_url" id="employer_profile_url" value="<?php echo $employer_profile_url; ?>" />
 				<br /><br />
 				<button type="button" name="employer_profile_file" id="employer_profile_file">Select / Upload Media</button>
 			</td>
-        </tr>
-    </table>
+		</tr>
+	</table>
 
 
 
@@ -218,7 +220,7 @@ function display_vacancy_attachments_meta_box($vacancy) {
 	</script>
 
 
-    <?php
+	<?php
 }
 
 
@@ -274,32 +276,52 @@ add_shortcode('display_vacancy_item', 'display_vacancyboard_func');
 
 function display_vacancyboard_func($atts)
 {
-	$atts = shortcode_atts(array('id' => '', 'job_description_label' => 'View Job Description', 'employer_profile_label' => 'View Employer Profile'), $atts, 'display_vacancyboard');
+	
+	$atts = shortcode_atts(array('job_description_label' => 'Job Description', 'employer_profile_label' => 'Employer Profile'), $atts, 'display_vacancyboard');
 
-	$vacancy_id = $atts['id'];
-	$vacancy = get_post($vacancy_id);
-	$job_description_url = get_post_meta($vacancy_id, 'job_description_url', true);
-	$employer_profile_url = get_post_meta($vacancy_id, 'employer_profile_url', true);
-	$date_from = get_post_meta($vacancy_id, 'date_from', true);
-	$date_to = get_post_meta($vacancy_id, 'date_to', true);
-	$vacancy_text = get_post_meta($vacancy_id, 'vacancy_text', true);
-	$thumbnail = get_the_post_thumbnail($vacancy_id);
-	$output = "<h1>{$vacancy->post_title}</h1>
-               {$thumbnail}
-               <p>{$vacancy_text}</p>
-			   ";
-	$output .= "<p>Contact: " . get_post_meta($vacancy_id, 'contact_name', true) . "</p>
-			   <p>Email: " . get_post_meta($vacancy_id, 'contact_email', true) . "</p>
-			   <p>Phone: " . get_post_meta($vacancy_id, 'contact_phone', true) . "</p>
-			   <p>Category: " . get_the_category_list(', ', '', $vacancy_id) . "</p>
-               <p>Date From: {$date_from}</p>
-               <p>Date To: {$date_to}</p>";
+	$notice_id =  get_the_ID();
+	
+	$title = get_the_title($notice_id);
+	
+	$date_from = get_post_meta($notice_id, 'date_from', true);
+	$date_to = get_post_meta($notice_id, 'date_to', true);
+	$vacancy_text = get_post_meta($notice_id, 'vacancy_text', true);
+
+	$thumbnail = get_the_post_thumbnail($notice_id, array(500, 384));
+	$job_description_label = $atts['job_description_label'];
+	$employer_profile_label = $atts['employer_profile_label'];
+	$job_description_url = get_post_meta($notice_id, 'job_description_url', true);
+	$employer_profile_url = get_post_meta($notice_id, 'employer_profile_url', true);
+	$contact_name = get_post_meta($notice_id, 'contact_name', true);
+	$contact_email = get_post_meta($notice_id, 'contact_email', true);
+	$contact_phone = get_post_meta($notice_id, 'contact_phone', true);
+
+	
+	// Convert the dates to Unix timestamps
+	$date_from = strtotime($date_from);
+	$date_to = strtotime($date_to);
+	$current_date = date('Y-m-d');
+	$current_date = strtotime($current_date);
+
+	// Skip the post if the current date is not within the date range
+	if ($current_date < $date_from || $current_date > $date_to) {
+		return "No vacancy to display. ".$date_to;
+	}
+
+	$output = "
+				<h1>" . $title . "</h1>
+				{$thumbnail}
+				<p>{$vacancy_text}</p>
+				<p>Contact: {$contact_name}</p>
+				<p>Email: <a href=" . antispambot("mailto:{$contact_email}") . ">" . antispambot($contact_email) . "</a></p>
+				<p>Phone: {$contact_phone}</p>";
 	if (!empty($job_description_url)) {
-		$output .= "<a href='{$job_description_url}' target='_blank'>{$job_description_label}</a>";
+		$output .= "<p><a class=\"button\" href='{$job_description_url}' target='_blank'>View {$job_description_label}</a></p>";
 	}
 	if (!empty($employer_profile_url)) {
-		$output .= "<a href='{$employer_profile_url}' target='_blank'>{$employer_profile_label}</a>";
+		$output .= "<p><a class=\"button\" href='{$employer_profile_url}' target='_blank'>View {$employer_profile_label}</a></p>";
 	}
+
 	return $output;
 }
 
@@ -318,7 +340,7 @@ function display_vacancyboard_list_func($atts)
 	);
 
 	// If a category is specified in the shortcode, or GET params, add it to the query args
-	$category_name = (!empty($atts['category'])) ? $atts['category'] : sanitize_text_field($_GET['category']);
+	$category_name = (!empty($atts['category'])) ? $atts['category'] : sanitize_text_field(@$_GET['category']);
 
 	// If a search term is submitted, add it to the query args
 	$search_term = isset($_GET['resource_search_term']) ? sanitize_text_field($_GET['resource_search_term']) : '';
@@ -330,22 +352,6 @@ function display_vacancyboard_list_func($atts)
 		'order'     => 'DESC',
 		'category_name' => $category_name, // 'category_name' is a query arg for 'post' type, not 'vacancy' type
 		's' => $search_term,
-
-		// 'meta_query' => array(
-		// 	'relation' => 'AND',
-		// 	array(
-		// 		'key' => 'date_from',
-		// 		'value' => date('Y-m-d'),
-		// 		'compare' => '<=',
-		// 		'type' => 'CHAR'
-		// 	),
-		// 	array(
-		// 		'key' => 'date_to',
-		// 		'value' => date('Y-m-d'),
-		// 		'compare' => '>=',
-		// 		'type' => 'CHAR'
-		// 	)
-		// )
 	);
 
 	$vacancies = new WP_Query($args);
@@ -357,8 +363,8 @@ function display_vacancyboard_list_func($atts)
 			$vacancy_id = get_the_ID();
 			$vacancy_text = get_post_meta($vacancy_id, 'vacancy_text', true);
 			$vacancy_text = wp_trim_words($vacancy_text, 40);
-			$thumbnail = get_the_post_thumbnail($vacancy_id);
-			$categories = get_the_category_list(', ');
+			
+			$thumbnail = get_the_post_thumbnail($vacancy_id, array(300, 225));
 
 			$date_from = get_post_meta($vacancy_id, 'date_from', true);
 			$date_to = get_post_meta($vacancy_id, 'date_to', true);
@@ -367,19 +373,22 @@ function display_vacancyboard_list_func($atts)
 			// Convert the dates to Unix timestamps
 			$date_from = strtotime($date_from);
 			$date_to = strtotime($date_to);
-			$current_date = strtotime($current_date);
+			$current_date = strtotime($current_date);			
 
 			// Skip the post if the current date is not within the date range
 			if ($current_date < $date_from || $current_date > $date_to) {
-				$dodgy = 'true';
+				continue;
 			}
 
-			$vacancy_text .= "<p class=\"view-more-link\" ><a href='" . get_permalink() . "'>View More</a></p>";
+			$title= "<a style=\"text-decoration:none\" href='" . get_permalink() . "'>" . get_the_title() . "</a>";
+
 			$output .= "<li>
-                        {$thumbnail}
-                        <h2>" . get_the_title() . "</h2>
-                        <p>{$vacancy_text}</p>
-                        </li>";
+							<center>{$thumbnail}</center>
+							<h2>" . $title . "</h2>
+							<p>{$vacancy_text}</p>";
+			//view more link
+			$output .= "<p class=\"view-more-link\"><a href='" . get_permalink() . "'>View more</a></p>";
+			$output .= "</li>";
 
 			$count++;
 		}
